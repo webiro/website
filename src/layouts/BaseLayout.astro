@@ -1,0 +1,93 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "آژانس خلاقیت وبیرو | خدمات طراحی سایت، سئو و برنامه‌نویسی" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | وبیرو</title>
+    <meta name="description" content={description} />
+    
+    <!-- Vazirmatn Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <body class="bg-bg text-text font-vazirmatn">
+    <!-- Luxurious Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-[9999] bg-bg flex items-center justify-center">
+      <div class="text-center">
+        <div class="text-6xl font-bold tracking-tight mb-4 text-white">وبیرو</div>
+        <div class="w-12 h-px bg-accent mx-auto mb-6"></div>
+        <div class="text-sm text-faded tracking-[3px]">CREATIVE AGENCY</div>
+      </div>
+    </div>
+
+    <slot />
+
+    <!-- Theme Toggle -->
+    <div class="fixed bottom-6 left-6 z-50">
+      <button 
+        id="theme-toggle"
+        class="w-11 h-11 rounded-full bg-card border border-border flex items-center justify-center hover:bg-accent hover:text-bg transition-all"
+        aria-label="تغییر تم"
+      >
+        <span class="material-icons text-xl" id="theme-icon">dark_mode</span>
+      </button>
+    </div>
+
+    <script>
+      // Hide loading screen
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const loader = document.getElementById('loading-screen');
+          if (loader) loader.style.transition = 'opacity 400ms';
+          if (loader) loader.style.opacity = '0';
+          setTimeout(() => loader?.remove(), 400);
+        }, 600);
+      });
+
+      // Theme Toggle
+      const toggle = document.getElementById('theme-toggle');
+      const icon = document.getElementById('theme-icon');
+
+      function setTheme(isDark: boolean) {
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          localStorage.theme = 'dark';
+          if (icon) icon.textContent = 'dark_mode';
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.theme = 'light';
+          if (icon) icon.textContent = 'light_mode';
+        }
+      }
+
+      // Initialize theme
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        setTheme(true);
+      } else {
+        setTheme(false);
+      }
+
+      toggle?.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        setTheme(!isDark);
+      });
+    </script>
+  </body>
+</html>

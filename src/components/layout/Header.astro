@@ -1,0 +1,81 @@
+---
+import { navigation } from '../../data/navigation';
+---
+
+<header class="sticky top-0 z-50 bg-bg/95 backdrop-blur border-b border-border">
+  <div class="container flex items-center justify-between h-20">
+    <!-- Logo -->
+    <a href="/" class="text-3xl font-bold tracking-tight">وبیرو</a>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden lg:flex items-center gap-8 text-sm">
+      {navigation.main.map(item => (
+        item.mega ? (
+          <div class="relative group">
+            <a href={item.href} class="nav-link flex items-center gap-1">
+              {item.label}
+              <span class="material-icons text-base">expand_more</span>
+            </a>
+            <div class="mega-menu">
+              <div class="grid grid-cols-2 gap-x-12">
+                {item.sections?.map(section => (
+                  <div>
+                    {section.items.map(link => (
+                      <a href={link.href} class="block py-2 text-sm hover:text-accent transition-colors">
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <a href={item.href} class={`nav-link ${item.highlight ? 'text-accent font-medium' : ''}`}>
+            {item.label}
+          </a>
+        )
+      ))}
+    </nav>
+
+    <!-- Contact Button -->
+    <div class="hidden lg:block">
+      <a href={navigation.contact.href} class="btn btn-primary text-sm px-5 py-2.5">
+        {navigation.contact.label}
+      </a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="lg:hidden text-2xl" id="mobile-menu-btn">
+      <span class="material-icons">menu</span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="hidden lg:hidden fixed inset-0 z-[60] bg-bg p-6">
+  <div class="flex justify-between items-center mb-8">
+    <div class="text-2xl font-bold">وبیرو</div>
+    <button id="close-mobile-menu" class="text-3xl">×</button>
+  </div>
+  
+  <div class="space-y-4 text-lg">
+    {navigation.main.map(item => (
+      <a href={item.href} class="block py-2 border-b border-border">
+        {item.label}
+      </a>
+    ))}
+    <a href={navigation.contact.href} class="block mt-4 btn btn-primary text-center">
+      {navigation.contact.label}
+    </a>
+  </div>
+</div>
+
+<script>
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const closeBtn = document.getElementById('close-mobile-menu');
+
+  mobileBtn?.addEventListener('click', () => mobileMenu?.classList.remove('hidden'));
+  closeBtn?.addEventListener('click', () => mobileMenu?.classList.add('hidden'));
+</script>
