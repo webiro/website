@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import "aos/dist/aos.css";
+@import "animate.css";
+
+/* ==================== WEBIRO DESIGN SYSTEM (Tailwind v4) ==================== */
+
+@theme {
+  --color-bg: #0f0e17;
+  --color-bg-secondary: #1a1924;
+  --color-accent: #ffc300;
+  --color-primary: #4a5bfc;
+  --color-text: #ededed;
+  --color-text-light: #fffffe;
+  --color-border: #2e2f3e;
+  --color-card: #16151f;
+}
+
+/* RTL Support */
+html {
+  direction: rtl;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+/* Cards */
+.card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #3a4be0;
+  transform: translateY(-1px);
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: #0f0e17;
+  font-weight: 600;
+}
+.btn-accent:hover {
+  background-color: #e6b000;
+}
+
+/* Navigation */
+.nav-link {
+  @apply transition-colors hover:text-accent;
+}
+
+/* Container */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}

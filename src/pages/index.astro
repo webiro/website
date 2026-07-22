@@ -1,0 +1,90 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="صفحه نخست" description="آژانس خلاقیت وبیرو - طراحی سایت، سئو، برنامه‌نویسی و مشاوره رشد کسب‌وکار">
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0f0e17]/95 backdrop-blur border-b border-[#2e2f3e]">
+    <div class="container flex items-center justify-between h-20">
+      <div class="flex items-center gap-3">
+        <a href="/" class="text-2xl font-bold text-white">وبیرو</a>
+      </div>
+
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center gap-8 text-sm">
+        <a href="/web-design" class="nav-link">طراحی سایت</a>
+        <a href="/programming" class="nav-link">برنامه‌نویسی</a>
+        <a href="/search-engine-optimization" class="nav-link">سئو سایت</a>
+        <a href="/portfolio" class="nav-link">نمونه کارها</a>
+        <a href="/blog" class="nav-link">آکادمی</a>
+        <a href="/request" class="nav-link text-accent">مشاوره رایگان</a>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a href="/contact" class="btn btn-primary hidden md:block">ارتباط با ما</a>
+        <button class="md:hidden text-2xl">☰</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="min-h-[100dvh] flex items-center pt-20 bg-[#0f0e17]">
+    <div class="container">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-5xl md:text-7xl font-bold mb-6">
+          آژانس خلاقیت <span class="text-accent">وبیرو</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-[#ededed] mb-10">
+          قدم به قدم، از شروع ایده تا اجرای پروژه
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/request" class="btn btn-accent text-lg px-10 py-4">ثبت درخواست مشاوره</a>
+          <a href="/portfolio" class="btn btn-primary text-lg px-10 py-4">مشاهده نمونه‌کارها</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="py-20 border-t border-[#2e2f3e]">
+    <div class="container">
+      <h2 class="text-center text-4xl font-bold mb-12">خدمات ما</h2>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <a href="/web-design" class="card p-8 rounded-2xl hover:border-accent transition-all group">
+          <div class="text-4xl mb-4">🌐</div>
+          <h3 class="text-2xl font-semibold mb-3 group-hover:text-accent">طراحی سایت</h3>
+          <p class="text-[#ededed]">طراحی سایت اختصاصی، وردپرس، فروشگاهی و شرکتی</p>
+        </a>
+
+        <a href="/programming" class="card p-8 rounded-2xl hover:border-accent transition-all group">
+          <div class="text-4xl mb-4">💻</div>
+          <h3 class="text-2xl font-semibold mb-3 group-hover:text-accent">برنامه‌نویسی</h3>
+          <p class="text-[#ededed]">ربات تلگرام، اپلیکیشن موبایل، CRM و پورتال سازمانی</p>
+        </a>
+
+        <a href="/search-engine-optimization" class="card p-8 rounded-2xl hover:border-accent transition-all group">
+          <div class="text-4xl mb-4">📈</div>
+          <h3 class="text-2xl font-semibold mb-3 group-hover:text-accent">سئو و محتوا</h3>
+          <p class="text-[#ededed]">استراتژی سئو، تولید محتوا و بهینه‌سازی سایت</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Clients -->
+  <section class="py-16 bg-[#1a1924]">
+    <div class="container text-center">
+      <p class="text-sm text-[#ffc300] mb-6 tracking-[3px]">اعتماد برندهای بزرگ</p>
+      <div class="flex flex-wrap justify-center gap-x-12 gap-y-8 opacity-80">
+        <div>ورزش سه</div>
+        <div>علی‌بابا</div>
+        <div>دیتاک</div>
+        <div>تابناک</div>
+        <div>باراکا</div>
+        <div>آنتن</div>
+      </div>
+    </div>
+  </section>
+</Layout>
