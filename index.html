@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WEBIRO — Coming Soon</title>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Vazirmatn', monospace;
+      color: #00ff9f;
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* CRT / Scanline overlay */
+    .crt-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.1) 50%
+      );
+      background-size: 100% 4px;
+      opacity: 0.15;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 11;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+    }
+
+    /* Terminal window */
+    .terminal-wrapper {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      width: min(92vw, 720px);
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .terminal {
+      background: rgba(5, 12, 10, 0.82);
+      border: 1px solid rgba(0, 255, 159, 0.35);
+      border-radius: 10px;
+      box-shadow:
+        0 0 40px rgba(0, 255, 159, 0.15),
+        0 0 80px rgba(0, 255, 159, 0.05),
+        inset 0 0 60px rgba(0, 40, 30, 0.4);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(0, 30, 22, 0.9);
+      border-bottom: 1px solid rgba(0, 255, 159, 0.2);
+      font-size: 12px;
+      color: #7affc4;
+      letter-spacing: 0.5px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .dot.red { background: #ff5f56; }
+    .dot.yellow { background: #ffbd2e; }
+    .dot.green { background: #27c93f; }
+
+    .terminal-title {
+      margin-right: auto;
+      opacity: 0.7;
+    }
+
+    .terminal-body {
+      padding: 18px 20px 22px;
+      min-height: 280px;
+      max-height: 55vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #00ff9f33 transparent;
+    }
+
+    .terminal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .terminal-body::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 159, 0.3);
+      border-radius: 3px;
+    }
+
+    .line {
+      margin-bottom: 6px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .prompt {
+      color: #00ff9f;
+    }
+
+    .cmd {
+      color: #e0ffe0;
+    }
+
+    .info {
+      color: #7affc4;
+    }
+
+    .success {
+      color: #00ff9f;
+      text-shadow: 0 0 8px rgba(0, 255, 159, 0.5);
+    }
+
+    .warn {
+      color: #ffcc00;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .dim {
+      color: #3a8f6e;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 9px;
+      height: 16px;
+      background: #00ff9f;
+      margin-right: 2px;
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* Brand block */
+    .brand {
+      margin-top: 18px;
+      text-align: center;
+      z-index: 20;
+      position: relative;
+    }
+
+    .brand h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: #00ff9f;
+      text-shadow:
+        0 0 20px rgba(0, 255, 159, 0.6),
+        0 0 40px rgba(0, 255, 159, 0.3);
+      margin-bottom: 4px;
+    }
+
+    .brand .agency {
+      font-size: 0.95rem;
+      color: #7affc4;
+      letter-spacing: 3px;
+      opacity: 0.85;
+      margin-bottom: 8px;
+    }
+
+    .brand .domain {
+      font-size: 0.85rem;
+      color: #3a8f6e;
+      letter-spacing: 1px;
+    }
+
+    .brand .domain a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .brand .domain a:hover {
+      color: #00ff9f;
+    }
+
+    /* Glitch effect on main message */
+    .glitch {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .terminal {
+        font-size: 12.5px;
+      }
+      .terminal-body {
+        min-height: 240px;
+        padding: 14px 16px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div class="crt-overlay"></div>
+  <div class="vignette"></div>
+
+  <div class="terminal-wrapper">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <span class="terminal-title">webiro@deploy:~$</span>
+      </div>
+      <div class="terminal-body" id="terminal"></div>
+    </div>
+
+    <div class="brand">
+      <h1>WEBIRO</h1>
+      <div class="agency">CREATIVE AGENCY</div>
+      <div class="domain"><a href="https://webiro.ir" target="_blank">webiro.ir</a></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script>
+    // ===================== THREE.JS SCENE =====================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.018);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 2, 18);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 1);
+    container.appendChild(renderer.domElement);
+
+    // ----- Particles (matrix / code rain feel) -----
+    const particleCount = 1800;
+    const positions = new Float32Array(particleCount * 3);
+    const velocities = [];
+    const colors = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 60;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+
+      velocities.push({
+        x: (Math.random() - 0.5) * 0.02,
+        y: -0.03 - Math.random() * 0.04,
+        z: (Math.random() - 0.5) * 0.02
+      });
+
+      // cyan / green neon palette
+      const g = 0.6 + Math.random() * 0.4;
+      colors[i * 3]     = 0.0;
+      colors[i * 3 + 1] = g;
+      colors[i * 3 + 2] = 0.5 + Math.random() * 0.5;
+    }
+
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+      size: 0.12,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // ----- Wireframe geometric structures -----
+    function createWireShape(geometry, color, pos, scale = 1) {
+      const edges = new THREE.EdgesGeometry(geometry);
+      const line = new THREE.LineSegments(
+        edges,
+        new THREE.LineBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.35,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      line.position.copy(pos);
+      line.scale.setScalar(scale);
+      scene.add(line);
+      return line;
+    }
+
+    const shapes = [];
+    shapes.push(createWireShape(new THREE.IcosahedronGeometry(3.5, 1), 0x00ff9f, new THREE.Vector3(0, 0, 0), 1));
+    shapes.push(createWireShape(new THREE.TorusGeometry(5, 0.15, 8, 48), 0x00ccff, new THREE.Vector3(0, 0, 0), 1));
+    shapes.push(createWireShape(new THREE.OctahedronGeometry(2.2, 0), 0x00ffcc, new THREE.Vector3(-8, 3, -4), 1));
+    shapes.push(createWireShape(new THREE.TetrahedronGeometry(1.8, 0), 0x66ffaa, new THREE.Vector3(7, -2, -3), 1));
+    shapes.push(createWireShape(new THREE.BoxGeometry(2, 2, 2), 0x00ff9f, new THREE.Vector3(-5, -4, 2), 1));
+
+    // ----- Grid floor -----
+    const grid = new THREE.GridHelper(80, 40, 0x003322, 0x001a14);
+    grid.position.y = -8;
+    grid.material.transparent = true;
+    grid.material.opacity = 0.4;
+    scene.add(grid);
+
+    // ----- Soft ambient + point lights -----
+    const ambient = new THREE.AmbientLight(0x003322, 0.4);
+    scene.add(ambient);
+
+    const point1 = new THREE.PointLight(0x00ff9f, 1.2, 50);
+    point1.position.set(5, 8, 10);
+    scene.add(point1);
+
+    const point2 = new THREE.PointLight(0x00ccff, 0.8, 40);
+    point2.position.set(-8, 4, -6);
+    scene.add(point2);
+
+    // ----- Animation -----
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.008;
+
+      // rotate wire shapes
+      shapes.forEach((s, i) => {
+        s.rotation.x = time * (0.15 + i * 0.03);
+        s.rotation.y = time * (0.2 + i * 0.04);
+      });
+
+      // particle rain + slight drift
+      const pos = particles.geometry.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        pos[i * 3]     += velocities[i].x;
+        pos[i * 3 + 1] += velocities[i].y;
+        pos[i * 3 + 2] += velocities[i].z;
+
+        // reset when out of bounds
+        if (pos[i * 3 + 1] < -20) {
+          pos[i * 3 + 1] = 20;
+          pos[i * 3]     = (Math.random() - 0.5) * 60;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 40;
+        }
+      }
+      particles.geometry.attributes.position.needsUpdate = true;
+      particles.rotation.y = time * 0.05;
+
+      // subtle camera drift
+      camera.position.x = Math.sin(time * 0.3) * 2;
+      camera.position.y = 2 + Math.sin(time * 0.2) * 0.8;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ===================== TERMINAL SIMULATION =====================
+    const terminal = document.getElementById('terminal');
+
+    const lines = [
+      { text: 'webiro@deploy:~$ ./deploy.sh --env production --version 2.0.0', cls: 'prompt' },
+      { text: '', cls: '' },
+      { text: '[INFO]  Initializing WEBIRO Creative Agency deployment pipeline...', cls: 'info' },
+      { text: '[INFO]  Target   → webiro.ir', cls: 'info' },
+      { text: '[INFO]  Branch  → main', cls: 'info' },
+      { text: '[INFO]  Commit  → a7f3c2e  "launch sequence initiated"', cls: 'info' },
+      { text: '', cls: '' },
+      { text: '→ Resolving dependencies...', cls: 'dim' },
+      { text: '  ✓ three.js@r134', cls: 'success' },
+      { text: '  ✓ vazirmatn@33.003', cls: 'success' },
+      { text: '  ✓ webgl-context@ok', cls: 'success' },
+      { text: '', cls: '' },
+      { text: '→ Building assets...', cls: 'dim' },
+      { text: '  [████████████████████] 100%', cls: 'success' },
+      { text: '', cls: '' },
+      { text: '→ Running pre-flight checks...', cls: 'dim' },
+      { text: '  ✓ WebGL 2.0 available', cls: 'success' },
+      { text: '  ✓ Particle system online', cls: 'success' },
+      { text: '  ✓ Terminal overlay active', cls: 'success' },
+      { text: '', cls: '' },
+      { text: '→ Deploying to production cluster...', cls: 'dim' },
+      { text: '  ████████████░░░░░░░░  62%', cls: 'warn' },
+      { text: '', cls: '' },
+      { text: '[WARN]  New version detected. Holding traffic.', cls: 'warn' },
+      { text: '', cls: '' },
+      { text: '╔════════════════════════════════════════════╗', cls: 'success' },
+      { text: '║                                            ║', cls: 'success' },
+      { text: '║     بزودی با نسخه جدید برمی‌گردیم          ║', cls: 'success' },
+      { text: '║                                            ║', cls: 'success' },
+      { text: '║         WEBIRO Creative Agency             ║', cls: 'success' },
+      { text: '║              webiro.ir                     ║', cls: 'success' },
+      { text: '║                                            ║', cls: 'success' },
+      { text: '╚════════════════════════════════════════════╝', cls: 'success' },
+      { text: '', cls: '' },
+      { text: 'webiro@deploy:~$ <span class="cursor"></span>', cls: 'prompt' }
+    ];
+
+    let lineIndex = 0;
+
+    function typeLine() {
+      if (lineIndex >= lines.length) return;
+
+      const item = lines[lineIndex];
+      const div = document.createElement('div');
+      div.className = 'line ' + item.cls;
+
+      if (item.text.includes('<span')) {
+        div.innerHTML = item.text;
+        terminal.appendChild(div);
+        terminal.scrollTop = terminal.scrollHeight;
+        lineIndex++;
+        return;
+      }
+
+      // typing effect
+      let charIndex = 0;
+      const speed = item.cls === 'success' || item.cls === 'warn' ? 12 : 18;
+
+      function typeChar() {
+        if (charIndex <= item.text.length) {
+          div.textContent = item.text.slice(0, charIndex);
+          terminal.appendChild(div);
+          terminal.scrollTop = terminal.scrollHeight;
+          charIndex++;
+          setTimeout(typeChar, speed + Math.random() * 20);
+        } else {
+          lineIndex++;
+          // delay before next line
+          const delay = item.text === '' ? 80 : (item.cls === 'dim' ? 200 : 320);
+          setTimeout(typeLine, delay);
+        }
+      }
+      typeChar();
+    }
+
+    // start after a short delay
+    setTimeout(typeLine, 600);
+  </script>
+</body>
+</html>
